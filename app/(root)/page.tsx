@@ -68,7 +68,7 @@ const Dashboard = async () => {
               <Link
                 href={file.url}
                 target="_blank"
-                className="flex items-center gap-3 hover:bg-zinc-200/55 transition cursor-pointer rounded-md pl-2 py-1"
+                className="flex items-center gap-3 hover:bg-zinc-200/55 transition cursor-pointer rounded-md sm:pl-2 py-1"
                 key={file.$id}
               >
                 <Thumbnail
@@ -79,7 +79,7 @@ const Dashboard = async () => {
 
                 <div className="recent-file-details">
                   <div className="flex flex-col gap-1">
-                    <p className="recent-file-name">{file.name}</p>
+                    <p className="recent-file-name overflow-ellipsis">{file.name}</p>
                     <FormattedDateTime
                       date={file.$createdAt}
                       className="caption"
