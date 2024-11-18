@@ -1,9 +1,9 @@
 import React from "react";
 import Sort from "@/components/Sort";
-import { getFiles } from "@/lib/actions/file.actions";
+import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
 import { Models } from "node-appwrite";
 import Card from "@/components/Card";
-import { getFileTypesParams } from "@/lib/utils";
+import { convertFileSize, getFileTypesParams, getUsageSummary } from "@/lib/utils";
 
 const Page = async ({ searchParams, params }: SearchParamProps) => {
   const type = ((await params)?.type as string) || "";
@@ -12,7 +12,14 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
 
   const types = getFileTypesParams(type) as FileType[];
 
-  const files = await getFiles({ types, searchText, sort });
+  // Parallel requests
+  const [files, totalSpace] = await Promise.all([
+    getFiles({ types, searchText, sort }),
+    getTotalSpaceUsed(),
+  ]);
+
+  // Get usage summary
+  const usageSummary = getUsageSummary(totalSpace);
 
   return (
     <div className="page-container">
@@ -20,9 +27,13 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
         <h1 className="h1 capitalize">{type}</h1>
 
         <div className="total-size-section">
-          <p className="body-1">
-            Total: <span className="h5">0 MB</span>
-          </p>
+          {usageSummary.map((summary, id) => summary.title.toLowerCase() === type && (
+            <p className="body-1" key={id}>
+              Total: <span className="h5">
+                {convertFileSize(summary.size)}
+              </span>
+            </p>
+          ))}
 
           <div className="sort-container">
             <p className="body-1 hidden text-light-200 sm:block">Sort by:</p>
